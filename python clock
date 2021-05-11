@@ -1,0 +1,87 @@
+<label>:
+     font_name: 'Roboto'
+     font_size: 60
+     markup: True
+<RobotoButton@Button>:
+     background_normal: 'button_down.png'
+     background_down: 'button_down.png'
+     border: (2, 2, 2, 2)
+     font_name: 'Roboto'
+     font_size: 25
+     bold: True
+
+BoxLayout:
+     orientation: 'vertical'
+
+     Label:
+          id: time
+          text: '[b]00[/b]:00:00'
+     BoxLayout:
+          height: 90
+          orientation: 'horizontal'
+          padding: 20
+          spacing: 20
+          size_hint: (1, 0)
+
+          RobotoButton:
+               id: start_stop
+               text: 'Start'
+               on_press: app.start_stop()
+
+          RobotoButton:
+               id: reset
+               text: 'Reset'
+               background_normal: 'red_button_normal.png'
+               background_down: 'red_button_down.png'
+               on_press: app.reset()
+     Label:
+          id: stopwatch
+          text: '00:00.[size=40]00[/size]'
+          
+          
+        python code:::::::: clock kivy python  
+          
+          
+          
+          
+from time import strftime
+from kivy.app import App
+from kivy.clock import Clock
+from kivy.core.text import LabelBase
+from kivy.core.window import Window
+from kivy.utils import get_color_from_hex
+
+class clockApp(App):
+    sw_started= False
+    sw_seconds = 0
+    def update_time(self, nap):
+        if self.sw_started:
+            self.sw_seconds += nap
+        minutes, seconds = divmod(self.sw_seconds, 60)
+        self.root.ids.stopwatch.text = (
+            '%02d:%02d.[size=40]%02d[/size]'%
+            (int(minutes), int(seconds),
+             int(seconds* 100 % 100))
+        )
+        self.root.ids.time.text = strftime('[b]%H[/b]:%M:%S')
+    def on_start(self):
+        Clock.schedule_interval(self.update_time, 0)
+    def start_stop(self):
+        self.root.ids.start_stop.text =(
+            'Start' if self.sw_started else 'Stop'
+        )
+        self.sw_started = not self.sw_started
+    def reset(self):
+        if self.sw_started:
+            self.root.ids.start_stop.text = 'Start'
+            self.sw_started = False
+        self.sw_seconds = 0
+
+if __name__ == '__main__':
+    Window.clearcolor = get_color_from_hex('#101216')
+    LabelBase.register(
+        name='Roboto',
+        fn_regular= 'Roboto-Thin.ttf',
+        fn_bold= 'Roboto-Medium.ttf'
+    )
+    clockApp().run()
